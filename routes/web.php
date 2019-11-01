@@ -11,12 +11,34 @@
 |
 */
 
+// Route::get('test', function () {
+// 	Mail::to('tokamenabde@gmail.com')->send(new \App\Mail\DefaultAmazonSesMail('test', "text"));
+// });
+
 Route::get('/', function () {
-    return view('welcome');
-});
+	return view('welcome');
+})->middleware("guest");
+
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home')->middleware('auth');
+
+Route::group(['middleware' => 'auth'], function () {
+	Route::resource('user', 'UserController', ['except' => ['show']]);
+	Route::get("send-mails", "SendMailController@index")->name('send-mails');
+	Route::put("send-mails", "SendMailController@save")->name('send-mails.save');
+	Route::get("mail-list", "MailListController@index")->name('mail-list');
+
+	Route::get('profile', ['as' => 'profile.edit', 'uses' => 'ProfileController@edit']);
+	Route::put('profile', ['as' => 'profile.update', 'uses' => 'ProfileController@update']);
+	Route::put('profile/password', ['as' => 'profile.password', 'uses' => 'ProfileController@password']);
+});
+
+
+
+
+
+
 
 Route::group(['middleware' => 'auth'], function () {
 	Route::get('table-list', function () {
@@ -47,11 +69,3 @@ Route::group(['middleware' => 'auth'], function () {
 		return view('pages.upgrade');
 	})->name('upgrade');
 });
-
-Route::group(['middleware' => 'auth'], function () {
-	Route::resource('user', 'UserController', ['except' => ['show']]);
-	Route::get('profile', ['as' => 'profile.edit', 'uses' => 'ProfileController@edit']);
-	Route::put('profile', ['as' => 'profile.update', 'uses' => 'ProfileController@update']);
-	Route::put('profile/password', ['as' => 'profile.password', 'uses' => 'ProfileController@password']);
-});
-
